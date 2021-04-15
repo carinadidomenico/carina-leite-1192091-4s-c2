@@ -13,19 +13,9 @@ import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var preferencias:SharedPreferences
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-//       val layoutLista: LinearLayout = findViewById(R.id.layout_lista)
-
-
-        preferencias = getSharedPreferences("pesquisa", MODE_PRIVATE)
-
-        val id1 = preferencias.getString("idCachorro1", null)
-        val id2 = preferencias.getString("idCachorro2", null)
 
     }
 
@@ -37,26 +27,25 @@ class MainActivity : AppCompatActivity() {
         val id2 = etId2.text.toString().toInt()
 
 
+
         val apiCachorro = ConexaoApiCachorros.criar()
 
-        val tvResposta:TextView = findViewById(R.id.tv_resposta)
+        var mensagem:String = ""
         val telaCompra = Intent(this, TelaCompra::class.java)
 
         apiCachorro.get(id1).enqueue(object : Callback<Cachorro> {
             override fun onResponse(call: Call<Cachorro>, response: Response<Cachorro>) {
                 val cachorro = response.body()
                 if(cachorro != null) {
-                    tvResposta.text = "Raça: ${cachorro.raca} - Preço: ${cachorro.precoMedio}"
+                    mensagem += "Raça: ${cachorro.raca} - Preço: ${cachorro.precoMedio}"
                     telaCompra.putExtra("idCachorro1", id1)
-                    telaCompra.putExtra("idCachorro2", id2)
-                    startActivity(telaCompra)
                 } else {
-                    tvResposta.text = ""
+                    mensagem = "Deu ruim... Nenhum cachorro encontrado."
                 }
             }
 
             override fun onFailure(call: Call<Cachorro>, t: Throwable) {
-                tvResposta.text = "Deu ruim... Nenhum cachorro encontrado."
+                mensagem = "Deu ruim... Nenhum cachorro encontrado."
             }
         })
 
@@ -65,15 +54,22 @@ class MainActivity : AppCompatActivity() {
                 call: Call<Cachorro>,
                 response: Response<Cachorro>
             ) {
-                telaCompra.putExtra("idCachorro1", id1)
-                telaCompra.putExtra("idCachorro2", id2)
-                startActivity(telaCompra)
+                val cachorro = response.body()
+                if(cachorro != null) {
+                    mensagem += "Raça: ${cachorro.raca} - Preço: ${cachorro.precoMedio}"
+                    telaCompra.putExtra("idCachorro2", id2)
+                } else {
+                    mensagem = "Deu ruim... Nenhum cachorro encontrado."
+                }
             }
 
             override fun onFailure(call: Call<Cachorro>, t: Throwable) {
-                tvResposta.text = "Deu ruim... Nenhum cachorro encontrado."
+                mensagem = "Deu ruim... Nenhum cachorro encontrado."
             }
         })
+
+        telaCompra.putExtra("mensagem", mensagem)
+        startActivity(telaCompra)
 
     }
 
