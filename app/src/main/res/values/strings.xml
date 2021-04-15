@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">APPCachorro</string>
+    <string name="et_id1">Digite o valor do primeiro id</string>
+    <string name="et_id2">Digite o valor do segundo id</string>
+    <string name="btn_cachorro">comprar cachorro</string>
+</resources>
